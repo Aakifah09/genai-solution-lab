@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Datasets (downloaded automatically)
+data/
+
+# Generated experiment artefacts: checkpoints, images, logs, metrics
+outputs/**
+!outputs/experiments/
+!outputs/evaluator/
+!outputs/**/.gitkeep
+*.pt
+*.pth
+*.npz
+results.csv
+
+# Local secrets / editor
+.streamlit/secrets.toml
+.env
+.vscode/
+.idea/

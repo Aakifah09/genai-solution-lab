@@ -1,0 +1,38 @@
+# Dark research-dashboard theme (adapted from Streamlit's One Dark Pro template).
+[theme]
+base = "dark"
+primaryColor = "#61afef"
+backgroundColor = "#1e2127"
+secondaryBackgroundColor = "#262a33"
+codeBackgroundColor = "#1a1d23"
+textColor = "#c8ccd4"
+linkColor = "#61afef"
+borderColor = "#3e4451"
+showWidgetBorder = true
+showSidebarBorder = true
+baseRadius = "8px"
+buttonRadius = "8px"
+font = "'IBM Plex Sans':https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+codeFont = "'JetBrains Mono':https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+codeFontSize = "13px"
+baseFontSize = 14
+headingFontWeights = [600, 600, 500, 500, 500, 500]
+chartCategoricalColors = ["#61afef", "#e5c07b", "#98c379", "#e06c75", "#c678dd", "#56b6c2", "#d19a66"]
+blueColor = "#61afef"
+greenColor = "#98c379"
+yellowColor = "#e5c07b"
+redColor = "#e06c75"
+violetColor = "#c678dd"
+orangeColor = "#d19a66"
+
+[theme.sidebar]
+backgroundColor = "#21252b"
+secondaryBackgroundColor = "#282c34"
+borderColor = "#3e4451"
+
+[server]
+headless = true
+runOnSave = false
+
+[browser]
+gatherUsageStats = false
