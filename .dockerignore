@@ -1,0 +1,23 @@
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.vscode/
+.idea/
+.env
+.streamlit/secrets.toml
+
+# Runtime state lives in volumes, not the image
+data/
+outputs/
+*.pt
+*.pth
+*.npz
+results.csv

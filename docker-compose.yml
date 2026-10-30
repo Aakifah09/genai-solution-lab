@@ -1,0 +1,17 @@
+services:
+  lab:
+    build: .
+    image: genai-solution-lab:latest
+    ports:
+      - "8501:8501"
+    volumes:
+      - lab-data:/app/data              # MNIST download
+      - lab-outputs:/app/outputs        # experiments, checkpoints, evaluator
+      - lab-torch-cache:/app/.cache/torch  # Inception weights for FID (~92 MB)
+    init: true                          # reap orphaned processes left by force-stopped jobs
+    restart: unless-stopped
+
+volumes:
+  lab-data:
+  lab-outputs:
+  lab-torch-cache:

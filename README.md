@@ -22,6 +22,7 @@ with Python and PyTorch, and includes a Streamlit dashboard for running experime
 - [CUDA verification](#cuda-verification)
 - [Training commands](#training-commands)
 - [Dashboard](#dashboard)
+- [Docker deployment](#docker-deployment)
 - [Automated tests](#automated-tests)
 - [Evaluation methodology](#evaluation-methodology)
 - [Results](#results)
@@ -209,6 +210,35 @@ streamlit run app.py      # http://localhost:8501
 
 Training runs in a separate process, so you can browse other pages, refresh or close the browser while a
 job runs. Reopening the dashboard picks the job back up.
+
+## Docker deployment
+
+The repository ships a CPU-only image that runs the dashboard and the CLI. Training jobs started from the
+dashboard run inside the same container.
+
+```powershell
+docker compose up --build -d                          # http://localhost:8501
+docker compose exec lab python cli.py download-data   # optional: the dashboard can also trigger it
+docker compose exec lab python cli.py train-classifier
+docker compose exec lab python cli.py train --model vae --epochs 2 --train-limit 10000
+docker compose logs -f lab
+docker compose down                                   # add -v to also delete data and experiments
+```
+
+State lives in three named volumes, so it survives rebuilds and restarts: `lab-data` (MNIST),
+`lab-outputs` (experiments, checkpoints, evaluator) and `lab-torch-cache` (Inception weights for FID).
+To copy results to the host: `docker compose cp lab:/app/outputs ./outputs-docker`.
+
+Without Compose:
+
+```powershell
+docker build -t genai-solution-lab .
+docker run -d --init -p 8501:8501 -v lab-data:/app/data -v lab-outputs:/app/outputs `
+  -v lab-torch-cache:/app/.cache/torch --name genai-lab genai-solution-lab
+```
+
+The image installs the CPU PyTorch wheel. For a GPU you would need a CUDA base image, the CUDA wheel and the
+NVIDIA Container Toolkit (`--gpus all`); that setup is not included or tested here.
 
 ## Automated tests
 

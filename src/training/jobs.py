@@ -57,6 +57,13 @@ def is_process_alive(pid: int | None) -> bool:
         finally:
             kernel32.CloseHandle(handle)
     try:
+        # Reap our own exited child first: a zombie still answers kill(pid, 0), which would
+        # leave a crashed job "running" forever (e.g. under Docker, where the dashboard launches it).
+        if os.waitpid(pid, os.WNOHANG)[0] == pid:
+            return False
+    except ChildProcessError:
+        pass  # not our child (e.g. launched by the CLI); fall through to the signal-0 probe
+    try:
         os.kill(pid, 0)
     except ProcessLookupError:
         return False
