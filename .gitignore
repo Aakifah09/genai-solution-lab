@@ -7,7 +7,7 @@ venv/
 env/
 
 # Datasets (downloaded automatically)
-data/
+/data/
 
 # Generated experiment artefacts: checkpoints, images, logs, metrics
 outputs/**
