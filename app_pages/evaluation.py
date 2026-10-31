@@ -1,4 +1,7 @@
 import json
+import subprocess
+import sys
+import threading
 
 import altair as alt
 import pandas as pd
@@ -6,9 +9,17 @@ import streamlit as st
 
 from src.evaluation.classifier import classifier_paths
 from src.persistence.storage import read_json
+from src.training.jobs import active_job
 from src.ui.components import empty_state, experiment_picker, get_store, line_chart
 from src.ui.helpers import METRIC_DEFINITIONS, format_duration, format_metric, history_to_long, parse_junit
-from src.utils.config import test_reports_dir
+from src.utils.config import PROJECT_ROOT, test_reports_dir
+
+
+@st.cache_resource
+def _test_run_lock() -> threading.Lock:
+    """One test run per server, shared across all browser sessions."""
+    return threading.Lock()
+
 
 store = get_store()
 
@@ -114,9 +125,26 @@ with tab_model:
 with tab_tests:
     st.caption("Automated software tests check that the code behaves correctly: shapes, losses, persistence and "
                "split isolation. They say nothing about how good a model is.")
-    report = parse_junit(test_reports_dir() / "junit.xml")
+    report_path = test_reports_dir() / "junit.xml"
+    training = active_job(store)
+    if st.button("Run tests", icon=":material/play_arrow:", type="primary", disabled=bool(training),
+                 help="Paused while a training job runs." if training else "Runs the pytest suite on this server (about a minute)."):
+        lock = _test_run_lock()
+        if not lock.acquire(blocking=False):
+            st.warning("A test run is already in progress. Try again in a minute.", icon=":material/hourglass_top:")
+        else:
+            try:
+                report_path.parent.mkdir(parents=True, exist_ok=True)
+                with st.spinner("Running the test suite…"):
+                    subprocess.run([sys.executable, "-m", "pytest", "-q", f"--junitxml={report_path}"],
+                                   cwd=PROJECT_ROOT, capture_output=True, timeout=900)
+            except subprocess.TimeoutExpired:
+                st.error("The test run took longer than 15 minutes and was stopped.", icon=":material/timer_off:")
+            finally:
+                lock.release()
+    report = parse_junit(report_path)
     if report is None:
-        st.info("No test report yet. Run `python cli.py test` to execute the suite and record results here.",
+        st.info("No test report yet. Click **Run tests** above, or run `python cli.py test` in a terminal.",
                 icon=":material/terminal:")
     else:
         with st.container(horizontal=True):
